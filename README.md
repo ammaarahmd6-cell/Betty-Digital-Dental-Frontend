@@ -25,7 +25,7 @@ Netlify uses `netlify.toml`:
 Required environment variables:
 
 ```env
-VITE_API_URL=https://your-render-backend-url.onrender.com/api
+VITE_API_URL=https://betty-digital-dental-backend.vercel.app/api
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
@@ -39,3 +39,5 @@ Vercel uses `vercel.json`:
 - Output directory: `dist`
 
 Required environment variables are the same as Netlify.
+
+Do not use `http://localhost:5000/api` in Vercel. The browser will try to call the visitor's own computer instead of your deployed backend.

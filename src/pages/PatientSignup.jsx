@@ -18,7 +18,7 @@ function PatientSignup() {
       Swal.fire('Account created', 'Your patient profile is complete and ready.', 'success');
       navigate('/patient/dashboard');
     } catch (error) {
-      Swal.fire('Signup failed', error.response?.data?.message || 'Please check all required fields.', 'error');
+      Swal.fire('Signup failed', error.response?.data?.message || error.message || 'Please check all required fields.', 'error');
     }
   };
 
