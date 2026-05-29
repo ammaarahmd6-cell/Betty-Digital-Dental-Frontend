@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
-import { FaCalendarAlt, FaCheckCircle, FaClipboardList, FaFileMedical, FaHistory, FaSignOutAlt, FaUserEdit, FaWhatsapp } from 'react-icons/fa';
+import { FaCalendarAlt, FaCheckCircle, FaClipboardList, FaFileMedical, FaHistory, FaQuoteRight, FaSignOutAlt, FaStar, FaUserEdit, FaWhatsapp } from 'react-icons/fa';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { contact, fallbackProducts, ownerProfile, services } from '../data/siteData';
@@ -25,6 +25,12 @@ function PatientDashboard() {
       interested_product: patient?.preferred_service || '',
       message: patient?.dental_concern || '',
       appointment_date: ''
+    }
+  });
+  const reviewForm = useForm({
+    defaultValues: {
+      rating: 5,
+      review: ''
     }
   });
 
@@ -72,6 +78,17 @@ function PatientDashboard() {
     }
   };
 
+  const submitReview = async (payload) => {
+    try {
+      await api.post('/patients/testimonials', payload);
+      Swal.fire('Review submitted', 'Thank you. Your review has been sent for approval.', 'success');
+      reviewForm.reset({ rating: 5, review: '' });
+      setActiveTab('overview');
+    } catch (error) {
+      Swal.fire('Review failed', error.response?.data?.message || 'Please write your review before submitting.', 'error');
+    }
+  };
+
   const logout = () => {
     logoutPatient();
     navigate('/patient/login');
@@ -96,6 +113,7 @@ function PatientDashboard() {
             <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}><FaUserEdit /> Profile</button>
             <button className={activeTab === 'request' ? 'active' : ''} onClick={() => setActiveTab('request')}><FaFileMedical /> New Request</button>
             <button className={activeTab === 'history' ? 'active' : ''} onClick={() => setActiveTab('history')}><FaHistory /> My Requests</button>
+            <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}><FaQuoteRight /> Review</button>
           </nav>
           <button className="btn btn-light w-100 mt-auto" onClick={logout}><FaSignOutAlt /> Logout</button>
         </aside>
@@ -132,6 +150,11 @@ function PatientDashboard() {
                 <h3>Quick Request</h3>
                 <p>Need scanner, CAD/CAM, milling, 3D printing, zirconia, or lab support?</p>
                 <button className="btn btn-gradient w-100" onClick={() => setActiveTab('request')}>Create Request</button>
+              </div>
+              <div className="patient-card">
+                <h3>Share Review</h3>
+                <p>Tell Betty Wong how the consultation, support, or solution helped your workflow.</p>
+                <button className="btn btn-light-blue w-100" onClick={() => setActiveTab('review')}>Write Review</button>
               </div>
               <div className="patient-card wide">
                 <h3>Recommended Solutions</h3>
@@ -236,6 +259,39 @@ function PatientDashboard() {
               </div>
               <button className="btn btn-gradient" onClick={() => setActiveTab('request')}>New Request</button>
             </div>
+          )}
+
+          {activeTab === 'review' && (
+            <form className="patient-card patient-form" onSubmit={reviewForm.handleSubmit(submitReview)}>
+              <SectionHeader title="Submit Your Review" text="Your review will appear on the website after admin approval." />
+              <div className="row g-3">
+                <Field className="col-md-4" label="Rating">
+                  <select className="form-select" {...reviewForm.register('rating', { required: true, valueAsNumber: true })}>
+                    {[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} Stars</option>)}
+                  </select>
+                </Field>
+                <div className="col-md-8">
+                  <div className="review-rating-preview" aria-label={`${reviewForm.watch('rating')} star rating`}>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <FaStar key={index} className={index < Number(reviewForm.watch('rating') || 5) ? 'active' : ''} />
+                    ))}
+                  </div>
+                </div>
+                <Field className="col-12" label="Review">
+                  <textarea
+                    className="form-control"
+                    rows="7"
+                    placeholder="Share your experience with Betty Digital Dental Solutions."
+                    {...reviewForm.register('review', { required: true, minLength: 10 })}
+                  />
+                </Field>
+                <div className="col-12">
+                  <button className="btn btn-gradient btn-lg w-100" disabled={reviewForm.formState.isSubmitting}>
+                    {reviewForm.formState.isSubmitting ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              </div>
+            </form>
           )}
         </main>
       </section>

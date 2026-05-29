@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { FaCheckCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaQuoteRight, FaStar } from 'react-icons/fa';
 import api from '../api/axios';
 import Hero from '../components/Hero';
 import ProductCard from '../components/ProductCard';
@@ -12,10 +12,15 @@ import { fallbackProducts, mergeProducts, ownerProfile, productCategories, servi
 
 function Home() {
   const [products, setProducts] = useState(fallbackProducts.filter((product) => product.featured));
+  const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
     api.get('/products?featured=true').then(({ data }) => {
       if (data.data?.length) setProducts(mergeProducts(data.data).filter((product) => product.featured));
+    }).catch(() => {});
+
+    api.get('/testimonials?status=active').then(({ data }) => {
+      setTestimonials((data.data || []).slice(0, 6));
     }).catch(() => {});
   }, []);
 
@@ -179,6 +184,40 @@ function Home() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="container">
+          <div className="section-heading">
+            <span>Patient Reviews</span>
+            <h2>What Patients and Dental Teams Say</h2>
+            <p>Approved reviews from people who connected with Betty Digital Dental Solutions for consultation, equipment guidance, and workflow support.</p>
+          </div>
+          {testimonials.length > 0 ? (
+            <div className="row g-4">
+              {testimonials.map((item) => (
+                <div className="col-md-6 col-xl-4" key={item.id}>
+                  <article className="testimonial-card">
+                    <FaQuoteRight className="testimonial-quote" />
+                    <StarRating rating={item.rating} />
+                    <p>{item.review}</p>
+                    <div>
+                      <strong>{item.client_name}</strong>
+                      <span>{item.country || 'Patient'}</span>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="testimonial-empty">
+              <FaQuoteRight />
+              <h3>Patient reviews are coming soon</h3>
+              <p>Approved patient testimonials will appear here after admin review.</p>
+              <Link to="/patient/signup" className="btn btn-light-blue">Create Patient Account</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section className="cta-section">
         <div className="container">
           <div className="cta-box">
@@ -193,6 +232,15 @@ function Home() {
         </div>
       </section>
     </>
+  );
+}
+
+function StarRating({ rating = 5 }) {
+  const value = Math.max(1, Math.min(5, Number(rating) || 5));
+  return (
+    <div className="testimonial-stars" aria-label={`${value} star rating`}>
+      {Array.from({ length: 5 }).map((_, index) => <FaStar key={index} className={index < value ? 'active' : ''} />)}
+    </div>
   );
 }
 

@@ -13,13 +13,16 @@ function AdminTestimonials() {
           { name: 'country', label: 'Country' },
           { name: 'review', label: 'Review', type: 'textarea' },
           { name: 'rating', label: 'Rating', type: 'number' },
-          { name: 'status', label: 'Status', type: 'select', options: ['active', 'inactive'] }
+          { name: 'status', label: 'Status', type: 'select', options: ['pending', 'active', 'inactive'] }
         ]}
         columns={[
           { key: 'client_name', label: 'Client' },
           { key: 'country', label: 'Country' },
           { key: 'rating', label: 'Rating' },
           { key: 'status', label: 'Status' }
+        ]}
+        filters={[
+          { name: 'status', label: 'Status', options: ['pending', 'active', 'inactive'] }
         ]}
       />
     </AdminLayout>
