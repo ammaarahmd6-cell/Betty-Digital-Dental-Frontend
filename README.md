@@ -29,3 +29,13 @@ VITE_API_URL=https://your-render-backend-url.onrender.com/api
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+## Vercel
+
+Vercel uses `vercel.json`:
+
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+
+Required environment variables are the same as Netlify.
